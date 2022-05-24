@@ -26,7 +26,7 @@ async function init() {
   const geometry6 = new THREE.PlaneGeometry(3, 5);
 
   const material = new THREE.MeshBasicMaterial({
-    map: new THREE.TextureLoader().load("./img/pic.jpg"),
+    map: new THREE.TextureLoader().load("img/pic.jpg"),
   });
   const cube1 = new THREE.Mesh(geometry1, material);
   const cube2 = new THREE.Mesh(geometry2, material);
