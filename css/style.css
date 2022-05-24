@@ -1,0 +1,16 @@
+body {
+  margin: 0;
+  background-color: #FFFEF4;
+}
+
+.title {
+  font-family: 'Holtwood One SC', serif;
+  color: #000;
+  font-size: 60px;
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  -webkit-transform: translate(-50%);
+          transform: translate(-50%);
+}
+/*# sourceMappingURL=style.css.map */
