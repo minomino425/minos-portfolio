@@ -1,7 +1,12 @@
 //canvas
 const canvas = document.querySelector("#webgl");
 import * as THREE from "three";
-import imgUrl from "./img/pic.jpg";
+import imgUrl01 from "./img/01.jpg";
+import imgUrl02 from "./img/02.jpg";
+import imgUrl03 from "./img/03.jpg";
+import imgUrl04 from "./img/04.jpg";
+import imgUrl05 from "./img/05.jpg";
+import imgUrl06 from "./img/06.jpg";
 import hamUrl from "./img/ham.png";
 
 init();
@@ -18,32 +23,58 @@ async function init() {
     canvas: canvas,
     alpha: true,
   });
+
   renderer.setSize(window.innerWidth, window.innerHeight);
 
   let geometry;
+  let material;
+  let planeArray = [];
+  let materialArray = [];
+  let mesh;
   for (let i = 0; i < 6; ++i) {
-    geometry = new THREE.PlaneGeometry(3, 4.2);
+    geometry = new THREE.PlaneGeometry(5, 8);
+    // console.log("./img/0" + (i + 1) + ".jpg");
+    // material = new THREE.MeshBasicMaterial({
+    //   map: new THREE.TextureLoader().load("./img/0" + (i + 1) + ".jpg"),
+    // });
+    let loader = new THREE.TextureLoader();
+    let imgPath = "./img/0" + (i + 1) + ".jpg";
+    let texture = loader.load(imgPath); // テクスチャ読み込み
+    let uniforms = {
+      uTexture: { value: texture },
+      uImageAspect: { value: 2512 / 4345 }, //画像のアスペクト
+      uPlaneAspect: { value: 500 / 800 }, //プレーンのアスペクト
+      uTime: { value: 0 },
+    };
+    material = new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader: document.getElementById("v-shader").textContent,
+      fragmentShader: document.getElementById("f-shader").textContent,
+    });
+    mesh = new THREE.Mesh(geometry, material);
+    planeArray.push(mesh);
+    scene.add(planeArray[i]);
+
+    materialArray.push(material);
+
+    console.log(i,uniforms)
   }
 
-  const material = new THREE.MeshBasicMaterial({
-    map: new THREE.TextureLoader().load(imgUrl),
-  });
+  // console.log(materialArray);
   const hamMaterial = new THREE.MeshBasicMaterial({
     map: new THREE.TextureLoader().load(hamUrl),
   });
 
-  const cube1 = new THREE.Mesh(geometry, material);
-  const cube2 = new THREE.Mesh(geometry, material);
-  const cube3 = new THREE.Mesh(geometry, material);
-  const cube4 = new THREE.Mesh(geometry, material);
-  const cube5 = new THREE.Mesh(geometry, material);
-  const cube6 = new THREE.Mesh(geometry, material);
+  // const cube1 = new THREE.Mesh(geometry, material);
+  // const cube2 = new THREE.Mesh(geometry, material);
+  // const cube3 = new THREE.Mesh(geometry, material);
+  // const cube4 = new THREE.Mesh(geometry, material);
+  // const cube5 = new THREE.Mesh(geometry, material);
+  // const cube6 = new THREE.Mesh(geometry, material);
 
-  scene.add(cube1, cube2, cube3, cube4, cube5, cube6);
+  // const planeArray = [cube1, cube2, cube3, cube4, cube5, cube6];
 
-  const planeArray = [cube1, cube2, cube3, cube4, cube5, cube6];
-
-  camera.position.z = 30;
+  camera.position.z = 40;
 
   // Raycaster のインスタンスを生成する @@@
   const raycaster = new THREE.Raycaster();
@@ -84,13 +115,14 @@ async function init() {
       // scene に含まれるすべてのオブジェクトを対象にレイキャストする
       const intersects = raycaster.intersectObjects(planeArray);
       // レイが交差しなかった場合を考慮し一度マテリアルをリセットしておく
-      planeArray.forEach((mesh) => {
-        mesh.material = material;
+      planeArray.forEach((mesh, index) => {
+        mesh.material = materialArray[index];
+        // console.log(materialArray[index]);
         document.querySelector("body").style.cursor = "initial";
       });
       if (intersects.length > 0) {
         intersects[0].object.material = hamMaterial;
-        console.log(intersects[0].object);
+        // console.log(intersects[0].object);
         document.querySelector("body").style.cursor = "pointer";
       }
     },
@@ -117,14 +149,15 @@ async function init() {
     //ジオメトリ全体を回転させる
     const mathPositionRatio = (cube, multi) => {
       cube.position.x =
-        8 * Math.cos(rotation + multi * (Math.PI / 3) + Math.PI / 6);
+        12 * Math.cos(rotation + multi * (Math.PI / 3) + Math.PI / 6);
       cube.position.z =
-        8 * Math.sin(rotation + multi * (Math.PI / 3) + Math.PI / 6);
+        12 * Math.sin(rotation + multi * (Math.PI / 3) + Math.PI / 6);
     };
     let num = 1;
     planeArray.forEach((cube, index) => {
       mathPositionRatio(cube, index + num);
     });
+    mesh.material.uniforms.uTime.value++;
     window.requestAnimationFrame(rot);
   }
 
